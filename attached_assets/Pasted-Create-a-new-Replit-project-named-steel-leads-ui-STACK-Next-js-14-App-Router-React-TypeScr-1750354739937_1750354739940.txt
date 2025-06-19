@@ -1,0 +1,57 @@
+Create a new Replit project named steel-leads-ui.
+
+STACK
+• Next.js 14 (App Router) + React + TypeScript
+• TailwindCSS + shadcn/ui + lucide-react
+• TanStack React Table for grids
+• @react-google-maps/api for the map panel
+• @dnd-kit/core for drag-and-drop
+
+THEME
+• Brand red #C8102E as Tailwind “primary”
+• Import /styles/globals.css in app/layout.tsx
+• Tailwind content paths must include ./app/**/*.{ts,tsx}
+
+ENV
+Generate an .env.example file with these keys (empty values):
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+SUPABASE_SERVICE_KEY=    # used later by server routes
+The app must compile with stub data if envs are missing.
+
+LAYOUT
+Left sidebar: logo, links Permits and Pipelines, user avatar at bottom.
+Top bar: global search. Date-range picker appears only on /permits.
+
+PERMITS PAGE  (/permits)
+• Server component fetches from Supabase view public.permit_leads
+  (issuedate DESC, limit 200). If envs missing, fall back to a local JSON array.
+• Filter ribbon: date range, code chips (ROOF FENC RNVN MBLD), keyword box,
+  valuation slider ($0–$500k), radius dropdown (25 / 50 / 100 mi / Any),
+  status dropdown (New / Queued / Contacted / Follow-Up / Done).
+  Filters update URL params and call /api/permits.
+• DataTable shows Issued Date, Code, Value, Address, Score placeholder.
+  NO bulk-checkbox column in v1.
+• Map pane: collapsible aside on the right, toggled by a map icon. Uses Maps JS API.
+• Drawer (shadcn Sheet) opens on row click, shows pretty-printed JSON,
+  blank Contact section, mini map centered on that permit.
+
+PIPELINES PAGE  (/pipelines)
+• Pipeline selector with four static options: Fence – Mobile, Fence – No Mobile,
+  GC – Mobile, GC – No Mobile.
+• Kanban board with columns New, Queued, Contacted, Follow-Up, Done.
+  Use @dnd-kit/core. Seed board with dummy cards (company, city, phone/email icons).
+• Card drawer shows stub details; action buttons disabled for now.
+
+AUTH
+Add Supabase auth helper but allow pages to load without login for now.
+Leave TODO in layout.tsx for Google OAuth mount.
+
+README
+Include “pnpm install”, “add env vars via Replit Secrets”, and “pnpm dev”.
+Ensure “pnpm build” succeeds even when app falls back to stub data.
+
+DELIVERABLE
+Complete repo scaffolding that runs locally with `pnpm dev` and renders
+all pages exactly as described. No backend SMS/email logic yet.
