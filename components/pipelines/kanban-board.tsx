@@ -82,16 +82,16 @@ export function KanbanBoard({ pipeline }: KanbanBoardProps) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-5 gap-6 h-full">
+        <div className="grid grid-cols-5 gap-6 h-full bg-background">
           {columns.map(status => {
             const columnCards = getCardsForColumn(status)
             
             return (
-              <Card key={status} className="flex flex-col h-full">
+              <Card key={status} className="flex flex-col h-full bg-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-700 text-center">
+                  <CardTitle className="text-sm font-medium text-muted-foreground text-center">
                     {columnTitles[status as keyof typeof columnTitles]}
-                    <span className="ml-2 text-xs bg-gray-200 rounded-full px-2 py-1">
+                    <span className="ml-2 text-xs bg-muted rounded-full px-2 py-1 text-muted-foreground">
                       {columnCards.length}
                     </span>
                   </CardTitle>

@@ -14,10 +14,10 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="w-64 bg-card border-r border-border flex flex-col shadow-sm">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-primary">Steel Leads</h1>
+      <div className="p-6 border-b border-border">
+        <h1 className="text-2xl font-bold text-primary">Steel Leads</h1>
       </div>
 
       {/* Navigation */}
@@ -29,10 +29,10 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                'flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-primary text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -43,14 +43,14 @@ export function Sidebar() {
       </nav>
 
       {/* User Avatar */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center space-x-3 px-4 py-3">
-          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-            <User className="h-5 w-5 text-gray-600" />
+      <div className="p-4 border-t border-border bg-muted/50">
+        <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors">
+          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+            <User className="h-5 w-5 text-primary" />
           </div>
           <div className="text-sm">
-            <div className="font-medium text-gray-900">User</div>
-            <div className="text-gray-500">user@example.com</div>
+            <div className="font-medium text-foreground">User</div>
+            <div className="text-muted-foreground">user@example.com</div>
           </div>
         </div>
       </div>

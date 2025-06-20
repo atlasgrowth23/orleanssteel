@@ -1,22 +1,11 @@
 'use client'
 
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet'
+import { format } from 'date-fns'
+import { X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Permit } from '@/types'
-import { format } from 'date-fns'
-
-const miniMapStyle = {
-  width: '100%',
-  height: '200px'
-}
 
 interface PermitDrawerProps {
   permit: Permit | null
@@ -25,25 +14,20 @@ interface PermitDrawerProps {
 }
 
 export function PermitDrawer({ permit, open, onClose }: PermitDrawerProps) {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-
-  if (!permit) return null
-
-  const center = permit.latitude && permit.longitude 
-    ? { lat: permit.latitude, lng: permit.longitude }
-    : { lat: 39.8283, lng: -98.5795 }
+  if (!open || !permit) return null
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-[600px] sm:max-w-[600px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Permit Details</SheetTitle>
-          <SheetDescription>
-            Issued on {format(new Date(permit.issuedate), 'MMMM dd, yyyy')}
-          </SheetDescription>
-        </SheetHeader>
+    <div className="fixed inset-0 z-[9999] bg-slate-900 overflow-auto">
+        {/* Header */}
+        <div className="bg-primary px-6 py-4 border-b flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-white">Permit Details</h2>
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
 
-        <div className="space-y-6 mt-6">
+        {/* Content */}
+        <div className="p-6 space-y-6">
           {/* Basic Info */}
           <Card>
             <CardHeader>
@@ -53,12 +37,24 @@ export function PermitDrawer({ permit, open, onClose }: PermitDrawerProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Permit Code</label>
-                  <div className="mt-1">
+                  <div className="mt-1 flex items-center space-x-2">
+                    <div 
+                      className="w-3 h-3 rounded-full"
+                      style={{ 
+                        backgroundColor: permit.steelCategory === 'Fencing & Gates' ? '#22c55e' :
+                                       permit.steelCategory === 'Metal Roofing' ? '#3b82f6' :
+                                       permit.steelCategory === 'Structural Steel' ? '#ef4444' :
+                                       permit.steelCategory === 'General Construction' ? '#f59e0b' : '#6b7280'
+                      }}
+                    ></div>
                     <Badge variant="outline">{permit.code}</Badge>
+                    {permit.isSteelRelevant && (
+                      <span className="text-sm text-green-600">{permit.steelCategory}</span>
+                    )}
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Value</label>
+                  <label className="text-sm font-medium text-gray-500">Construction Value</label>
                   <div className="mt-1 text-lg font-semibold">
                     {permit.value ? `$${permit.value.toLocaleString()}` : 'N/A'}
                   </div>
@@ -68,70 +64,43 @@ export function PermitDrawer({ permit, open, onClose }: PermitDrawerProps) {
                 <label className="text-sm font-medium text-gray-500">Address</label>
                 <div className="mt-1 text-sm">{permit.address}</div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Contact Section - Blank for now */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Contact Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-gray-500 italic">
-                Contact information will be available in a future update.
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Contractor</label>
+                  <div className="mt-1 text-sm">{permit.contractor || 'No contractor listed'}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Distance</label>
+                  <div className="mt-1 text-sm">{permit.distance ? `${permit.distance} miles` : 'N/A'}</div>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Mini Map */}
-          {apiKey && permit.latitude && permit.longitude && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Location</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="rounded-lg overflow-hidden border">
-                  <LoadScript googleMapsApiKey={apiKey}>
-                    <GoogleMap
-                      mapContainerStyle={miniMapStyle}
-                      center={center}
-                      zoom={15}
-                      options={{
-                        disableDefaultUI: true,
-                        zoomControl: true,
-                      }}
-                    >
-                      <Marker
-                        position={center}
-                        icon={{
-                          url: 'data:image/svg+xml;base64,' + btoa(`
-                            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="15" cy="15" r="12" fill="#C8102E" stroke="white" stroke-width="3"/>
-                            </svg>
-                          `),
-                          scaledSize: new window.google.maps.Size(30, 30),
-                        }}
-                      />
-                    </GoogleMap>
-                  </LoadScript>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Raw Data */}
+          {/* Contractor Intelligence */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Raw Permit Data</CardTitle>
+              <CardTitle className="text-lg">Contractor Intelligence</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="text-xs bg-gray-50 p-4 rounded overflow-auto">
-                {JSON.stringify(permit, null, 2)}
-              </pre>
+              <div className="text-sm text-gray-500 italic">
+                Contractor analysis will be available in a future update.
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Location Intelligence */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Location Intelligence</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-gray-500 italic">
+                Location analysis will be available in a future update.
+              </div>
             </CardContent>
           </Card>
         </div>
-      </SheetContent>
-    </Sheet>
+    </div>
   )
 }

@@ -10,30 +10,23 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { PermitDrawer } from './permit-drawer'
 import { Permit } from '@/types'
 
 const columnHelper = createColumnHelper<Permit>()
 
 const columns = [
   columnHelper.accessor('issuedate', {
-    header: 'Issued Date',
-    cell: info => format(new Date(info.getValue()), 'MMM dd, yyyy'),
-    sortingFn: 'datetime',
-  }),
-  columnHelper.accessor('code', {
-    header: 'Code',
-    cell: info => (
-      <span className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">
-        {info.getValue()}
-      </span>
-    ),
-  }),
-  columnHelper.accessor('value', {
-    header: 'Value',
+    header: 'Issue Date',
     cell: info => {
-      const value = info.getValue()
-      return value ? `$${value.toLocaleString()}` : 'N/A'
+      const date = info.getValue()
+      return date ? format(new Date(date), 'MMM dd, yyyy') : 'N/A'
+    },
+  }),
+  columnHelper.accessor('distance', {
+    header: 'Distance',
+    cell: info => {
+      const distance = info.getValue()
+      return distance ? `${distance}mi` : 'N/A'
     },
   }),
   columnHelper.accessor('address', {
@@ -44,14 +37,81 @@ const columns = [
       </div>
     ),
   }),
-  columnHelper.display({
-    id: 'score',
-    header: 'Score',
-    cell: () => (
-      <div className="w-16 h-2 bg-gray-200 rounded">
-        <div className="w-3/4 h-full bg-primary rounded"></div>
-      </div>
-    ),
+  columnHelper.accessor('code', {
+    header: 'Type',
+    cell: info => {
+      const code = info.getValue()
+      const permit = info.row.original
+      const category = permit.steelCategory
+      
+      // Get the exact color from ORLEANS_STEEL_RELEVANT_CODES
+      const getColorForCategory = (category: string) => {
+        switch (category) {
+          case 'Fencing & Gates': return '#22c55e'
+          case 'Metal Roofing': return '#3b82f6'
+          case 'Structural Steel': return '#ef4444'
+          case 'General Construction': return '#f59e0b'
+          case 'Opportunity': return '#a855f7'
+          default: return '#6b7280'
+        }
+      }
+      
+      const dotColor = getColorForCategory(category)
+      
+      return (
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: dotColor }}
+            ></div>
+            <span className="text-sm font-mono">
+              {code}
+            </span>
+          </div>
+          {permit.isSteelRelevant && (
+            <div className="text-xs text-muted-foreground">
+              {category}
+            </div>
+          )}
+        </div>
+      )
+    },
+  }),
+  columnHelper.accessor('value', {
+    header: 'Value',
+    cell: info => {
+      const value = info.getValue()
+      return value ? `$${value.toLocaleString()}` : 'N/A'
+    },
+  }),
+  columnHelper.accessor('contractor', {
+    header: 'Contractor',
+    cell: info => {
+      const contractor = info.getValue() || '-'
+      const truncated = contractor.length > 20 ? contractor.substring(0, 20) + '...' : contractor
+      return (
+        <div className="max-w-[150px]">
+          <div className="text-sm" title={contractor}>
+            {truncated}
+          </div>
+        </div>
+      )
+    },
+  }),
+  columnHelper.accessor('description', {
+    header: 'Description',
+    cell: info => {
+      const description = info.getValue() || ''
+      const truncated = description.length > 50 ? description.substring(0, 50) + '...' : description
+      return (
+        <div className="max-w-[200px]">
+          <div className="text-sm" title={description}>
+            {truncated || 'N/A'}
+          </div>
+        </div>
+      )
+    },
   }),
 ]
 
@@ -63,7 +123,6 @@ export function DataTable({ data }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'issuedate', desc: true }
   ])
-  const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null)
 
   const table = useReactTable({
     data,
@@ -109,8 +168,7 @@ export function DataTable({ data }: DataTableProps) {
               {table.getRowModel().rows.map(row => (
                 <tr
                   key={row.id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setSelectedPermit(row.original)}
+                  className="hover:bg-gray-50"
                 >
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -126,12 +184,6 @@ export function DataTable({ data }: DataTableProps) {
           </table>
         </div>
       </div>
-
-      <PermitDrawer
-        permit={selectedPermit}
-        open={!!selectedPermit}
-        onClose={() => setSelectedPermit(null)}
-      />
     </>
   )
 }

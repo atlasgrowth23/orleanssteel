@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { FilterRibbon } from '@/components/permits/filter-ribbon'
 import { DataTable } from '@/components/permits/data-table'
-import { MapPanel } from '@/components/permits/map-panel'
+import { NavigationTabs } from '@/components/permits/navigation-tabs'
 import { getPermits } from '@/lib/supabase'
 import stubPermits from '@/data/stub-permits.json'
 
@@ -38,14 +38,12 @@ export default async function PermitsPage({ searchParams }: PermitsPageProps) {
 
   return (
     <div className="h-full flex flex-col">
+      <NavigationTabs />
       <FilterRibbon searchParams={resolvedSearchParams} />
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 p-6 overflow-auto">
-          <Suspense fallback={<div>Loading permits...</div>}>
-            <DataTable data={permits} />
-          </Suspense>
-        </div>
-        <MapPanel permits={permits} />
+      <div className="flex-1 p-6 overflow-auto">
+        <Suspense fallback={<div>Loading permits...</div>}>
+          <DataTable data={permits} />
+        </Suspense>
       </div>
     </div>
   )
